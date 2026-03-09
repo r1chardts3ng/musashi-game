@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Musashi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: #0c0a07;
+            color: #e2d8c4;
+            font-family: 'Noto Serif', Georgia, 'Times New Roman', serif;
+            font-size: 17px;
+            line-height: 1.85;
+            min-height: 100vh;
+        }
+
+        #container {
+            max-width: 660px;
+            margin: 0 auto;
+            padding: 0 28px 100px;
+        }
+
+        /* ── Title ─────────────────────────────── */
+
+        #header {
+            text-align: center;
+            padding: 48px 0 36px;
+        }
+
+        #title {
+            font-size: 11px;
+            letter-spacing: 0.45em;
+            color: #5a5040;
+            text-transform: uppercase;
+            font-style: normal;
+        }
+
+        #title-kanji {
+            display: block;
+            font-size: 26px;
+            letter-spacing: 0.15em;
+            color: #3a3028;
+            margin-top: 6px;
+        }
+
+        /* ── Scene image ────────────────────────── */
+
+        #image-wrap {
+            position: relative;
+            width: 100%;
+            height: 260px;
+            overflow: hidden;
+            margin-bottom: 44px;
+            display: none;
+        }
+
+        #scene-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center 30%;
+            opacity: 0;
+            transition: opacity 1s ease;
+            display: block;
+        }
+
+        #scene-img.visible {
+            opacity: 1;
+        }
+
+        #image-wrap::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100px;
+            background: linear-gradient(to bottom, transparent, #0c0a07);
+            pointer-events: none;
+        }
+
+        /* ── Story text ─────────────────────────── */
+
+        #story {
+            display: none;
+        }
+
+        .para {
+            margin-bottom: 22px;
+            opacity: 0;
+            transform: translateY(6px);
+            animation: appear 0.5s ease forwards;
+        }
+
+        .para:nth-child(1)  { animation-delay: 0.00s; }
+        .para:nth-child(2)  { animation-delay: 0.06s; }
+        .para:nth-child(3)  { animation-delay: 0.12s; }
+        .para:nth-child(4)  { animation-delay: 0.18s; }
+        .para:nth-child(5)  { animation-delay: 0.24s; }
+        .para:nth-child(6)  { animation-delay: 0.30s; }
+        .para:nth-child(7)  { animation-delay: 0.36s; }
+        .para:nth-child(8)  { animation-delay: 0.42s; }
+        .para:nth-child(9)  { animation-delay: 0.48s; }
+        .para:nth-child(10) { animation-delay: 0.54s; }
+
+        @keyframes appear {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .story-hr {
+            border: none;
+            border-top: 1px solid #2a2318;
+            margin: 32px 0;
+        }
+
+        /* ── Choices ────────────────────────────── */
+
+        #choices {
+            display: none;
+            margin-top: 40px;
+            padding-top: 28px;
+            border-top: 1px solid #2a2318;
+        }
+
+        .choice {
+            display: block;
+            width: 100%;
+            background: none;
+            border: none;
+            border-bottom: 1px solid #1e1a14;
+            color: #a09070;
+            font-family: 'Noto Serif', Georgia, serif;
+            font-size: 15px;
+            line-height: 1.7;
+            text-align: left;
+            padding: 14px 0 14px 24px;
+            cursor: pointer;
+            position: relative;
+            transition: color 0.25s ease, border-color 0.25s ease;
+        }
+
+        .choice:last-child {
+            border-bottom: none;
+        }
+
+        .choice::before {
+            content: '›';
+            position: absolute;
+            left: 4px;
+            color: #3a3028;
+            font-size: 18px;
+            line-height: 1;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: color 0.25s ease, left 0.2s ease;
+        }
+
+        .choice:hover {
+            color: #e2d8c4;
+        }
+
+        .choice:hover::before {
+            color: #8a7860;
+            left: 8px;
+        }
+
+        /* ── End state ──────────────────────────── */
+
+        #end {
+            display: none;
+            text-align: center;
+            margin-top: 64px;
+            padding-top: 36px;
+            border-top: 1px solid #2a2318;
+        }
+
+        #end p {
+            font-size: 11px;
+            letter-spacing: 0.4em;
+            color: #3a3028;
+            text-transform: uppercase;
+        }
+
+        /* ── Loading ────────────────────────────── */
+
+        #loading {
+            text-align: center;
+            padding: 80px 0;
+            font-size: 11px;
+            letter-spacing: 0.3em;
+            color: #3a3028;
+            text-transform: uppercase;
+        }
+
+        /* ── Mobile ─────────────────────────────── */
+
+        @media (max-width: 560px) {
+            body { font-size: 16px; }
+            #image-wrap { height: 200px; }
+            #container { padding: 0 20px 80px; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="container">
+    <div id="header">
+        <span id="title">Musashi</span>
+        <span id="title-kanji">武蔵</span>
+    </div>
+
+    <div id="image-wrap">
+        <img id="scene-img" src="" alt="">
+    </div>
+
+    <div id="loading">Loading...</div>
+    <div id="story"></div>
+    <div id="choices"></div>
+    <div id="end"><p>— end —</p></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/inkjs@2.2.4/dist/ink.js"></script>
+<script>
+(function () {
+    'use strict';
+
+    var story = null;
+    var currentImageName = null;
+
+    // ── Image handling ──────────────────────────────────────
+
+    function setImage(name) {
+        if (!name || name === currentImageName) return;
+        currentImageName = name;
+
+        var wrap = document.getElementById('image-wrap');
+        var img  = document.getElementById('scene-img');
+
+        wrap.style.display = 'block';
+        img.classList.remove('visible');
+
+        // Try JPG first, then PNG
+        function tryLoad(src, fallbackSrc) {
+            var t = new Image();
+            t.onload = function () {
+                img.src = src;
+                // Small delay so the fade-out has time to register
+                setTimeout(function () {
+                    img.classList.add('visible');
+                }, 30);
+            };
+            t.onerror = function () {
+                if (fallbackSrc) tryLoad(fallbackSrc, null);
+            };
+            t.src = src;
+        }
+
+        tryLoad('images/' + name + '.jpg', 'images/' + name + '.png');
+    }
+
+    function processTags(tags) {
+        if (!tags || !tags.length) return;
+        for (var i = 0; i < tags.length; i++) {
+            var tag = tags[i].trim();
+            if (tag.indexOf('image:') === 0) {
+                setImage(tag.replace('image:', '').trim());
+            }
+        }
+    }
+
+    // ── Story rendering ─────────────────────────────────────
+
+    function addParagraph(text, container) {
+        if (text.trim() === '---') {
+            var hr = document.createElement('hr');
+            hr.className = 'story-hr';
+            container.appendChild(hr);
+            return;
+        }
+        var p = document.createElement('p');
+        p.className = 'para';
+        p.textContent = text.trim();
+        container.appendChild(p);
+    }
+
+    function renderChoices(choices) {
+        var choicesEl = document.getElementById('choices');
+        choicesEl.innerHTML = '';
+        choicesEl.style.display = 'block';
+
+        choices.forEach(function (choice, i) {
+            var btn = document.createElement('button');
+            btn.className = 'choice';
+            btn.textContent = choice.text;
+            btn.addEventListener('click', function () {
+                story.ChooseChoiceIndex(i);
+                advance();
+            });
+            choicesEl.appendChild(btn);
+        });
+    }
+
+    function advance() {
+        // Clear
+        var storyEl   = document.getElementById('story');
+        var choicesEl = document.getElementById('choices');
+        var endEl     = document.getElementById('end');
+
+        storyEl.innerHTML   = '';
+        storyEl.style.display = 'none';
+        choicesEl.style.display = 'none';
+        choicesEl.innerHTML = '';
+        endEl.style.display = 'none';
+
+        // Gather all content until choices or end
+        while (story.canContinue) {
+            var text = story.Continue();
+            processTags(story.currentTags);
+            if (text && text.trim()) {
+                storyEl.style.display = 'block';
+                addParagraph(text, storyEl);
+            }
+        }
+
+        if (story.currentChoices.length > 0) {
+            renderChoices(story.currentChoices);
+        } else {
+            endEl.style.display = 'block';
+        }
+
+        // Scroll to top of content
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ── Init ────────────────────────────────────────────────
+
+    function init() {
+        fetch('story.json')
+            .then(function (res) {
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return res.text();
+            })
+            .then(function (json) {
+                story = new inkjs.Story(json);
+                document.getElementById('loading').style.display = 'none';
+                advance();
+            })
+            .catch(function (err) {
+                document.getElementById('loading').textContent =
+                    'Could not load story.json — make sure it is in the same folder as index.html.';
+                console.error(err);
+            });
+    }
+
+    init();
+}());
+</script>
+</body>
+</html>
