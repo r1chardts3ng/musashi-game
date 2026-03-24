@@ -96,6 +96,17 @@
             pointer-events: none;
         }
 
+        /* ── Story zone wrapper ───────────────────────── */
+
+        #story-wrap {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
         /* ── Story zone — scrolls internally ─────────── */
 
         #story-zone {
@@ -104,11 +115,44 @@
             padding: 20px 28px 12px;
             scrollbar-width: none;
             -ms-overflow-style: none;
-            /* fade handled by wrapper opacity */
         }
 
         #story-zone::-webkit-scrollbar {
             display: none;
+        }
+
+        /* ── Scroll hint ──────────────────────────────── */
+
+        #scroll-hint {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background: linear-gradient(transparent, #0c0a07);
+            pointer-events: none;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 6px;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        #scroll-hint.visible {
+            opacity: 1;
+        }
+
+        #scroll-hint-arrow {
+            color: #3a3028;
+            font-size: 16px;
+            line-height: 1;
+            animation: nudge 2s ease-in-out infinite;
+        }
+
+        @keyframes nudge {
+            0%, 100% { transform: translateY(0); }
+            50%       { transform: translateY(3px); }
         }
 
         /* ── Content fade wrapper ────────────────────── */
@@ -262,11 +306,14 @@
 
     <div id="loading">Loading…</div>
 
-    <div id="story-zone" style="display:none">
-        <div id="content">
-            <div id="story"></div>
-            <div id="end"><p>— end —</p></div>
+    <div id="story-wrap">
+        <div id="story-zone" style="display:none">
+            <div id="content">
+                <div id="story"></div>
+                <div id="end"><p>— end —</p></div>
+            </div>
         </div>
+        <div id="scroll-hint"><span id="scroll-hint-arrow">⌄</span></div>
     </div>
 
     <div id="choices-zone" style="display:none">
@@ -291,8 +338,23 @@
     var endEl        = document.getElementById('end');
     var choicesZoneEl = document.getElementById('choices-zone');
     var choicesEl    = document.getElementById('choices');
-    var imageWrapEl  = document.getElementById('image-wrap');
-    var sceneImgEl   = document.getElementById('scene-img');
+    var imageWrapEl   = document.getElementById('image-wrap');
+    var sceneImgEl    = document.getElementById('scene-img');
+    var scrollHintEl  = document.getElementById('scroll-hint');
+
+    // ── Scroll hint ─────────────────────────────────
+    function updateScrollHint() {
+        var el = storyZoneEl;
+        var hasOverflow = el.scrollHeight > el.clientHeight + 4;
+        var atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 12;
+        if (hasOverflow && !atBottom) {
+            scrollHintEl.classList.add('visible');
+        } else {
+            scrollHintEl.classList.remove('visible');
+        }
+    }
+
+    storyZoneEl.addEventListener('scroll', updateScrollHint);
 
     // ── Image ───────────────────────────────────────
     function setImage(name) {
@@ -383,6 +445,9 @@
             // Fade back in
             contentEl.classList.remove('fading');
             choicesZoneEl.style.opacity = '1';
+
+            // Check scroll hint after animations settle
+            setTimeout(updateScrollHint, 600);
         }, FADE_MS);
     }
 
@@ -398,6 +463,7 @@
             storyZoneEl.style.display = 'block';
             buildContent();
             choicesZoneEl.style.display = story.currentChoices.length ? 'block' : 'none';
+            setTimeout(updateScrollHint, 600);
         })
         .catch(function (err) {
             loadingEl.textContent = 'Could not load story.json — make sure it is in the same folder.';
